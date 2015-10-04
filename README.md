@@ -19,7 +19,9 @@ chmod +x ~/create-symfony-project/bin/*
 
 add the following line to your .bashrc or .bash_profile depending on your system
 
+```{.sh}
 export PATH=~create-symfony-project/bin:$PATH
+```
 
 ## usage
 
