@@ -12,8 +12,7 @@ git clone https://github.com/vagrant-php/create-symfony-project.git
 ### make commands executable
 
 ```{.sh}
-cd ~/create-symfony-project/bin
-chmod +x *
+chmod +x ~/create-symfony-project/bin/*
 ```
 
 ### register path
