@@ -39,4 +39,6 @@ chmod +x ~/create-symfony-project/bin/*
 
 ## usage
 
+```{.sh}
 create-symfony-project --help
+```
