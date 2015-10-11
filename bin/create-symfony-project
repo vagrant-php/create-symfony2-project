@@ -19,17 +19,21 @@ symfonyVersion=2.7.5
 for i in "$@"
 do
     case $i in
-        -p=*|--projectname=*)
+        -pn=*|--projectname=*)
             projectName="${i#*=}"
             shift
         ;;
-        -s=*|--symfonyversion=*)
+        -sv=*|--symfonyversion=*)
             symfonyVersion="${i#*=}"
             shift
         ;;
+        -st=*|--sharetype=*)
+            shareType="${i#*=}"
+            shift
+        ;;
         -h|--help)
-            echo "usage: create-symfony-project --projectname=myproject --symfonyversion=2.7.5"
-            echo "usage: create-symfony-project -p=myproject -s=2.7.5"
+            echo "usage: create-symfony-project --projectname=myproject --symfonyversion=2.7.5 --sharetype=nfs"
+            echo "usage: create-symfony-project -pn=myproject -sv=2.7.5 --st=nfs"
             exit 0
         ;;
     esac
@@ -88,6 +92,11 @@ git submodule add -b v1-ubuntu https://github.com/dominikzogg/vagrant-php.git
 
 # prepare a default vagrant.yml
 printf "hostname: $projectName.dev\napplication: symfony\n" > vagrant.yml
+
+# add sharetype if defined
+if [[ $shareType ]]; then
+    printf "sharetype: $shareType\n" >> vagrant.yml
+fi
 
 # copy app_dev.php if exists for this version
 if [ -f "$DIR/../files/$symfonyVersion/app_dev.php" ]; then
