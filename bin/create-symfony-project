@@ -57,23 +57,24 @@ if [ -d "$projectName" ]; then
     exit 1
 fi
 
+# download only if not allready downloaded
+if [ ! -f $DIR/../downloads/v$symfonyVersion.zip ]; then
+    # zip url
+    url="https://github.com/symfony/symfony-standard/archive/v$symfonyVersion.zip"
 
-# zip url
-url="https://github.com/symfony/symfony-standard/archive/v$symfonyVersion.zip"
+    # check if the url is callable
+    curl -s --head $url | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null
+    if [ "$?" ==  1 ]; then
+        echo "can't resolve url $url"
+        exit 1
+    fi
 
-# check if the url is callable
-curl -s --head $url | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null
-if [ "$?" ==  1 ]; then
-    echo "can't resolve url $url"
-    exit 1
+    # download symfony
+    curl -L $url -o $DIR/../downloads/v$symfonyVersion.zip
 fi
 
-# download symfony
-curl -L $url -o v$symfonyVersion.zip
-
 # extract symfony
-unzip v$symfonyVersion.zip
-rm v$symfonyVersion.zip
+unzip $DIR/../downloads/v$symfonyVersion.zip
 
 # move extracted symfony to a dir with project name
 mv symfony-standard-$symfonyVersion $projectName
