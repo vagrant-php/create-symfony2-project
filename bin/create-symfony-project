@@ -127,6 +127,11 @@ printf "    database_port: ~\n" >> app/config/parameters.yml
 printf "    database_name: $projectName\n" >> app/config/parameters.yml
 printf "    database_user: root\n" >> app/config/parameters.yml
 printf "    database_password: root\n" >> app/config/parameters.yml
+printf "    mailer_transport: smtp\n" >> app/config/parameters.yml
+printf "    mailer_host: 127.0.0.1\n" >> app/config/parameters.yml
+printf "    mailer_user: ~\n" >> app/config/parameters.yml
+printf "    mailer_password: ~\n" >> app/config/parameters.yml
+printf "    secret: vagrant\n" >> app/config/parameters.yml
 
 cd vagrant-php
 
