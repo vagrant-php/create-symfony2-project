@@ -25,8 +25,6 @@ do
         ;;
         -s=*|--symfonyversion=*)
             symfonyVersion="${i#*=}"
-            symfonyVersionParts=(${symfonyVersion//./ })
-            symfonyMinorVersion=${symfonyVersionParts[0]}.${symfonyVersionParts[1]}
             shift
         ;;
         -h|--help)
@@ -36,6 +34,10 @@ do
         ;;
     esac
 done
+
+# get symfony version parts
+symfonyVersionParts=(${symfonyVersion//./ })
+symfonyMinorVersion=${symfonyVersionParts[0]}.${symfonyVersionParts[1]}
 
 # check for projectname
 if [ -z "$projectName" ]; then
@@ -55,9 +57,6 @@ if [ -d "$projectName" ]; then
     exit 1
 fi
 
-# get symfony version parts
-symfonyVersionParts=(${symfonyVersion//./ })
-symfonyMinorVersion=${symfonyVersionParts[0]}.${symfonyVersionParts[1]}
 
 # zip url
 url="https://github.com/symfony/symfony-standard/archive/v$symfonyVersion.zip"
