@@ -32,8 +32,8 @@ do
             shift
         ;;
         -h|--help)
-            echo "usage: create-symfony-project --projectname=myproject --symfonyversion=2.7.5 --sharetype=nfs"
-            echo "usage: create-symfony-project -pn=myproject -sv=2.7.5 --st=nfs"
+            echo "usage: create-symfony-project --projectname=myproject --symfonyversion=$symfonyVersion --sharetype=nfs"
+            echo "usage: create-symfony-project -pn=myproject -sv=$symfonyVersion --st=nfs"
             exit 0
         ;;
     esac
