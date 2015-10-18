@@ -13,58 +13,74 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 ##################################################################################################
 
 # defaults
-symfonyVersion=2.7.5
+version=2.7.5
+sharetyp=nfs
+distribution=ubuntu
+distributionVersion=14.04
+application=symfony2
 
 # get all parameters
 for i in "$@"
 do
     case $i in
-        -pn=*|--projectname=*)
-            projectName="${i#*=}"
+        --name=*)
+            name="${i#*=}"
             shift
         ;;
-        -sv=*|--symfonyversion=*)
-            symfonyVersion="${i#*=}"
+        --version=*)
+            version="${i#*=}"
             shift
         ;;
-        -st=*|--sharetype=*)
-            shareType="${i#*=}"
+        --sharetype=*)
+            sharetyp="${i#*=}"
+            shift
+        ;;
+        --distribution=*)
+            distribution="${i#*=}"
+            shift
+        ;;
+        --distributionVersion=*)
+            distributionVersion="${i#*=}"
             shift
         ;;
         -h|--help)
-            echo "usage: create-symfony-project --projectname=myproject --symfonyversion=$symfonyVersion --sharetype=nfs"
-            echo "usage: create-symfony-project -pn=myproject -sv=$symfonyVersion --st=nfs"
+            echo "usage: create-symfony-project --name=myproject"
+            echo "usage: create-symfony-project --name=myproject --version=$version --sharetype=$sharetyp --distribution=$distribution --distributionVersion=$distributionVersion"
             exit 0
         ;;
     esac
 done
 
-# get symfony version parts
-symfonyVersionParts=(${symfonyVersion//./ })
-symfonyMinorVersion=${symfonyVersionParts[0]}.${symfonyVersionParts[1]}
+# get version parts
+versionParts=(${version//./ })
+majorVersion=${versionParts[0]}
+minorVersion=${versionParts[0]}.${versionParts[1]}
 
-# check for projectname
-if [ -z "$projectName" ]; then
-    echo "please enter a project name: --projectname=myproject"
+# check for name
+if [ -z "$name" ]; then
+    echo "please enter a project name: --name=myproject"
     exit 1
 fi
 
-# check for projectname signs
-if [[ $projectName = *[^[:alnum:]]* ]]; then
+# check for name signs
+if [[ $name = *[^[:alnum:]]* ]]; then
     echo "please enter a project name which is alphanumeric"
     exit 1
 fi
 
 # check if the project directory allready exists
-if [ -d "$projectName" ]; then
+if [ -d "$name" ]; then
     echo "please enter a another project name, directory allready exists"
     exit 1
 fi
 
+# get other variables
+url=https://github.com/symfony/symfony-standard/archive/v$version.zip
+filename=v$version.zip
+foldername=symfony-standard-$version
+
 # download only if not allready downloaded
-if [ ! -f $DIR/../downloads/v$symfonyVersion.zip ]; then
-    # zip url
-    url="https://github.com/symfony/symfony-standard/archive/v$symfonyVersion.zip"
+if [ ! -f $DIR/../downloads/$filename ]; then
 
     # check if the url is callable
     curl -s --head $url | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null
@@ -73,74 +89,62 @@ if [ ! -f $DIR/../downloads/v$symfonyVersion.zip ]; then
         exit 1
     fi
 
-    # download symfony
-    curl -L $url -o $DIR/../downloads/v$symfonyVersion.zip
+    # download zip
+    curl -L $url -o $DIR/../downloads/$filename
 fi
 
-# extract symfony
-unzip $DIR/../downloads/v$symfonyVersion.zip
+# extract zip
+unzip $DIR/../downloads/$filename
 
-# move extracted symfony to a dir with project name
-mv symfony-standard-$symfonyVersion $projectName
+# move extracted dir to a dir with project name
+mv $foldername $name
 
-cd $projectName
+cd $name
 
 git init
 
 # add vagrant setup as submodule
-git submodule add -b v1-ubuntu https://github.com/dominikzogg/vagrant-php.git
+git submodule add -b $distributionVersion https://github.com/vagrant-php/$distribution.git vagrant-php
 
 # prepare a default vagrant.yml
-printf "hostname: $projectName.dev\napplication: symfony\n" > vagrant.yml
+printf "hostname: $name.dev\napplication: $application\n" > vagrant.yml
 
 # add sharetype if defined
-if [[ $shareType ]]; then
-    printf "sharetype: $shareType\n" >> vagrant.yml
+if [[ $sharetyp ]]; then
+    printf "sharetype: $sharetyp\n" >> vagrant.yml
 fi
 
-# copy app_dev.php if exists for this version
-if [ -f "$DIR/../files/$symfonyVersion/app_dev.php" ]; then
-    cp -f $DIR/../files/$symfonyVersion/app_dev.php web/app_dev.php
-    
-# copy app_dev.php if exists for this minor version    
-elif [ -f "$DIR/../files/$symfonyMinorVersion/app_dev.php" ]; then
-    cp -f $DIR/../files/$symfonyMinorVersion/app_dev.php web/app_dev.php
+# create a temp directory
+tempDir=$DIR/../tmp/project-$name
+if [ -d "$tempDir" ]; then
+    rm -rf $tempDir
 fi
 
-# copy AppKernel.php if exists for this version
-if [ -f "$DIR/../files/$symfonyVersion/AppKernel.php" ]; then
-    cp -f $DIR/../files/$symfonyVersion/AppKernel.php app/AppKernel.php
-    
-# copy AppKernel.php if exists for this minor version    
-elif [ -f "$DIR/../files/$symfonyMinorVersion/AppKernel.php" ]; then
-    cp -f $DIR/../files/$symfonyMinorVersion/AppKernel.php app/AppKernel.php
+mkdir $tempDir
+
+# copy files for this major version
+majorVersionFilePath=$DIR/../files/$majorVersion
+if [ -d "$majorVersionFilePath" ]; then
+    cp -rf $majorVersionFilePath/* $tempDir/
 fi
 
-# copy runtime_dir_config.php if exists for this version
-if [ -f "$DIR/../files/$symfonyVersion/runtime_dir_config.php" ]; then
-    cp -f $DIR/../files/$symfonyVersion/runtime_dir_config.php web/runtime_dir_config.php
-    cp -f $DIR/../files/$symfonyVersion/runtime_dir_config.php web/runtime_dir_config.php.dist
-    printf "\n/app/runtime_dir_config.php" >> .gitignore
-    
-# copy runtime_dir_config.php if exists for this minor version    
-elif [ -f "$DIR/../files/$symfonyMinorVersion/runtime_dir_config.php" ]; then
-    cp -f $DIR/../files/$symfonyMinorVersion/runtime_dir_config.php web/runtime_dir_config.php
-    cp -f $DIR/../files/$symfonyMinorVersion/runtime_dir_config.php web/runtime_dir_config.php.dist
-    printf "\n/app/runtime_dir_config.php" >> .gitignore
+# copy files for this minor version
+minorVersionFilePath=$DIR/../files/$minorVersion
+if [ -d "$minorVersionFilePath" ]; then
+    cp -rf $minorVersionFilePath/* $tempDir/
 fi
 
-# add parameters.yml
-printf "parameters:\n" > app/config/parameters.yml
-printf "    database_host: 127.0.0.1\n" >> app/config/parameters.yml
-printf "    database_port: ~\n" >> app/config/parameters.yml
-printf "    database_name: $projectName\n" >> app/config/parameters.yml
-printf "    database_user: root\n" >> app/config/parameters.yml
-printf "    database_password: root\n" >> app/config/parameters.yml
-printf "    mailer_transport: smtp\n" >> app/config/parameters.yml
-printf "    mailer_host: 127.0.0.1\n" >> app/config/parameters.yml
-printf "    mailer_user: ~\n" >> app/config/parameters.yml
-printf "    mailer_password: ~\n" >> app/config/parameters.yml
-printf "    secret: vagrant\n" >> app/config/parameters.yml
+# copy files for this version
+versionFilePath=$DIR/../files/$version
+if [ -d "$versionFilePath" ]; then
+    cp -rf $versionFilePath/* $tempDir/
+fi
+
+# replace variables within configs
+find $tempDir -type f -print0 | xargs -0 sed -i "s/%%%%name%%%%/$name/g"
+
+# copy the prepared config to the project
+cp -rf $tempDir/* .
 
 cd vagrant-php
 
@@ -148,7 +152,7 @@ cd vagrant-php
 vagrant up
 
 # create database
-vagrant ssh -c "echo 'CREATE DATABASE $projectName;' | mysql"
+vagrant ssh -c "echo 'CREATE DATABASE $name;' | mysql"
 
 # setup symfony
 vagrant ssh -c "cd /vagrant && composer.phar install"
