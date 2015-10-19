@@ -96,6 +96,12 @@ fi
 # extract zip
 unzip $DIR/../downloads/$filename
 
+# check if the folder within zip exists
+if [ ! -d $foldername ]; then
+    echo "there is no folder within zip file with name $foldername"
+    exit 1
+fi
+
 # move extracted dir to a dir with project name
 mv $foldername $name
 
