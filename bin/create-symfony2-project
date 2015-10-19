@@ -1,0 +1,158 @@
+#!/bin/bash
+
+## http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in ##
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+##################################################################################################
+
+# defaults
+version=2.7.5
+sharetyp=nfs
+distribution=ubuntu
+distributionVersion=14.04
+application=symfony2
+
+# get all parameters
+for i in "$@"
+do
+    case $i in
+        --name=*)
+            name="${i#*=}"
+            shift
+        ;;
+        --version=*)
+            version="${i#*=}"
+            shift
+        ;;
+        --sharetype=*)
+            sharetyp="${i#*=}"
+            shift
+        ;;
+        --distribution=*)
+            distribution="${i#*=}"
+            shift
+        ;;
+        --distributionVersion=*)
+            distributionVersion="${i#*=}"
+            shift
+        ;;
+        -h|--help)
+            echo "usage: create-symfony-project --name=myproject"
+            echo "usage: create-symfony-project --name=myproject --version=$version --sharetype=$sharetyp --distribution=$distribution --distributionVersion=$distributionVersion"
+            exit 0
+        ;;
+    esac
+done
+
+# get version parts
+versionParts=(${version//./ })
+majorVersion=${versionParts[0]}
+minorVersion=${versionParts[0]}.${versionParts[1]}
+
+# check for name
+if [ -z "$name" ]; then
+    echo "please enter a project name: --name=myproject"
+    exit 1
+fi
+
+# check for name signs
+if [[ $name = *[^[:alnum:]]* ]]; then
+    echo "please enter a project name which is alphanumeric"
+    exit 1
+fi
+
+# check if the project directory allready exists
+if [ -d "$name" ]; then
+    echo "please enter a another project name, directory allready exists"
+    exit 1
+fi
+
+# get other variables
+url=https://github.com/symfony/symfony-standard/archive/v$version.zip
+filename=v$version.zip
+foldername=symfony-standard-$version
+
+# download only if not allready downloaded
+if [ ! -f $DIR/../downloads/$filename ]; then
+
+    # check if the url is callable
+    curl -s --head $url | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null
+    if [ "$?" ==  1 ]; then
+        echo "can't resolve url $url"
+        exit 1
+    fi
+
+    # download zip
+    curl -L $url -o $DIR/../downloads/$filename
+fi
+
+# extract zip
+unzip $DIR/../downloads/$filename
+
+# move extracted dir to a dir with project name
+mv $foldername $name
+
+cd $name
+
+git init
+
+# add vagrant setup as submodule
+git submodule add -b $distributionVersion https://github.com/vagrant-php/$distribution.git vagrant-php
+
+# prepare a default vagrant.yml
+printf "hostname: $name.dev\napplication: $application\n" > vagrant.yml
+
+# add sharetype if defined
+if [[ $sharetyp ]]; then
+    printf "sharetype: $sharetyp\n" >> vagrant.yml
+fi
+
+# create a temp directory
+tempDir=$DIR/../tmp/project-$name
+if [ -d "$tempDir" ]; then
+    rm -rf $tempDir
+fi
+
+mkdir $tempDir
+
+# copy files for this major version
+majorVersionFilePath=$DIR/../files/$majorVersion
+if [ -d "$majorVersionFilePath" ]; then
+    cp -rf $majorVersionFilePath/* $tempDir/
+fi
+
+# copy files for this minor version
+minorVersionFilePath=$DIR/../files/$minorVersion
+if [ -d "$minorVersionFilePath" ]; then
+    cp -rf $minorVersionFilePath/* $tempDir/
+fi
+
+# copy files for this version
+versionFilePath=$DIR/../files/$version
+if [ -d "$versionFilePath" ]; then
+    cp -rf $versionFilePath/* $tempDir/
+fi
+
+# replace variables within configs
+find $tempDir -type f -print0 | xargs -0 sed -i "s/%%%%name%%%%/$name/g"
+
+# copy the prepared config to the project
+cp -rf $tempDir/* .
+
+cd vagrant-php
+
+# setup vagrant
+vagrant up
+
+# create database
+vagrant ssh -c "echo 'CREATE DATABASE $name;' | mysql"
+
+# setup symfony
+vagrant ssh -c "cd /vagrant && composer.phar install"
