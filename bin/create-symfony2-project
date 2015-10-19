@@ -147,7 +147,7 @@ if [ -d "$versionFilePath" ]; then
 fi
 
 # replace variables within configs
-find $tempDir -type f -print0 | xargs -0 sed -i -e "s/%%%%name%%%%/$name/g"
+find $tempDir -name "*.yml" -print0 | xargs -0 sed -i "" "s/%%%%name%%%%/$name/g"
 
 # copy the prepared config to the project
 cp -rf $tempDir/* .
