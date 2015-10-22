@@ -13,11 +13,12 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 ##################################################################################################
 
 # defaults
-version=2.7.5
-sharetyp=nfs
-distribution=ubuntu
-distributionVersion=14.04
 application=symfony2
+vagrantPhpBranch=14.04
+vagrantPhpRepository=https://github.com/vagrant-php/ubuntu.git
+vagrantProvider=virtualbox
+vagrantSharetype=nfs
+version=2.7.5
 
 # get all parameters
 for i in "$@"
@@ -27,25 +28,29 @@ do
             name="${i#*=}"
             shift
         ;;
+        --vagrantPhpBranch=*)
+            vagrantPhpBranch="${i#*=}"
+            shift
+        ;;
+        --vagrantPhpRepository=*)
+            vagrantPhpRepository="${i#*=}"
+            shift
+        ;;
+        --vagrantProvider=*)
+            vagrantProvider="${i#*=}"
+            shift
+        ;;
+        --vagrantSharetype=*)
+            vagrantSharetype="${i#*=}"
+            shift
+        ;;
         --version=*)
             version="${i#*=}"
             shift
         ;;
-        --sharetype=*)
-            sharetyp="${i#*=}"
-            shift
-        ;;
-        --distribution=*)
-            distribution="${i#*=}"
-            shift
-        ;;
-        --distributionVersion=*)
-            distributionVersion="${i#*=}"
-            shift
-        ;;
         -h|--help)
-            echo "usage: create-symfony-project --name=myproject"
-            echo "usage: create-symfony-project --name=myproject --version=$version --sharetype=$sharetyp --distribution=$distribution --distributionVersion=$distributionVersion"
+            echo "usage: create-symfony2-project --name=myproject"
+            echo "usage: create-symfony2-project --name=myproject --vagrantPhpBranch=$vagrantPhpBranch --vagrantPhpRepository=$vagrantPhpRepository --vagrantProvider=$vagrantProvider --vagrantSharetype=$vagrantSharetype --version=$version"
             exit 0
         ;;
     esac
@@ -110,14 +115,14 @@ cd $name
 git init
 
 # add vagrant setup as submodule
-git submodule add -b $distributionVersion https://github.com/vagrant-php/$distribution.git vagrant-php
+git submodule add -b $vagrantPhpBranch $vagrantPhpRepository vagrant-php
 
 # prepare a default vagrant.yml
 printf "hostname: $name.dev\napplication: $application\n" > vagrant.yml
 
 # add sharetype if defined
-if [[ $sharetyp ]]; then
-    printf "sharetype: $sharetyp\n" >> vagrant.yml
+if [[ $vagrantSharetype ]]; then
+    printf "sharetype: $vagrantSharetype\n" >> vagrant.yml
 fi
 
 # create a temp directory
@@ -155,7 +160,7 @@ cp -rf $tempDir/* .
 cd vagrant-php
 
 # setup vagrant
-vagrant up
+vagrant up --provider=$vagrantProvider
 
 # create database
 vagrant ssh -c "echo 'CREATE DATABASE $name;' | mysql"
