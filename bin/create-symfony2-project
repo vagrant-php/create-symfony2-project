@@ -84,6 +84,17 @@ url=https://github.com/symfony/symfony-standard/archive/v$version.zip
 filename=v$version.zip
 foldername=symfony-standard-$version
 
+# check if the repository exists
+git ls-remote --exit-code $vagrantPhpRepository $vagrantPhpBranch > /dev/null
+commandStatus=$?
+if [ "$commandStatus" ==  1 ]; then
+    echo "Repository with url $vagrantPhpRepository not found"
+    exit 1
+elif [ "$commandStatus" ==  2 ]; then
+    echo "Branch $vagrantPhpBranch within repository with url $vagrantPhpRepository not found"
+    exit 1
+fi
+
 # download only if not allready downloaded
 if [ ! -f $DIR/../downloads/$filename ]; then
 
@@ -116,6 +127,10 @@ git init
 
 # add vagrant setup as submodule
 git submodule add -b $vagrantPhpBranch $vagrantPhpRepository vagrant-php
+if [ "$?" ==  1 ]; then
+    echo "Cannot get vagrant-php as submodule"
+    exit 1
+fi
 
 # prepare a default vagrant.yml
 printf "hostname: $name.dev\napplication: $application\n" > vagrant.yml
