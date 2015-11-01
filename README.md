@@ -4,7 +4,7 @@
 
 ### first use (prepare your computer)
 
-Read the installation guide of [vagrant-php][1].
+Read the [installation guide][1].
 
 ### clone
 
@@ -35,4 +35,4 @@ git pull
 create-symfony2-project --help
 ```
 
-[1]: https://github.com/vagrant-php/ubuntu#installation
+[1]: https://github.com/vagrant-php/doc
