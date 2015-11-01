@@ -1,4 +1,4 @@
-# create-symfony2-project
+# vagrant-php/create-symfony2-project
 
 ## installation
 
