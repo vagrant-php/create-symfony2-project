@@ -1,7 +1,3 @@
 <?php
 
-return sys_get_temp_dir() .
-    DIRECTORY_SEPARATOR .
-    'symfony' .
-    DIRECTORY_SEPARATOR .
-    trim(str_replace(DIRECTORY_SEPARATOR, '-', dirname(__DIR__)), '-');
+return sys_get_temp_dir() . '/symfony/'. trim(str_replace('/', '-', dirname(__DIR__)), '-');
