@@ -179,8 +179,8 @@ if [ -d "$versionFilePath" ]; then
 fi
 
 # replace variables within configs
-sed -i "" -e "s/%%%%locale%%%%/$locale/g" $tempDir/app/config/parameters.yml
-sed -i "" -e "s/%%%%name%%%%/$name/g" $tempDir/app/config/parameters.yml
+sed -i "" -e "s/%%%%locale%%%%/$locale/g" $tempDir/app/config/parameters.yml.dist
+sed -i "" -e "s/%%%%name%%%%/$name/g" $tempDir/app/config/parameters.yml.dist
 
 # copy the prepared config to the project
 cp -rf $tempDir/* .
