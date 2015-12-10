@@ -85,9 +85,7 @@ if [ -d "$name" ]; then
 fi
 
 # get other variables
-nameLength=${#name}
 hostname=$name.dev
-hostnameLength=${#hostname}
 url=https://github.com/symfony/symfony-standard/archive/v$version.zip
 filename=v$version.zip
 foldername=symfony-standard-$version
