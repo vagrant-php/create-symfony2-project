@@ -192,7 +192,7 @@ cd vagrant-php
 vagrant up --provider=$vagrantProvider
 
 # create database
-vagrant ssh -c "echo 'CREATE DATABASE $name;' | mysql"
+vagrant ssh -c "echo 'CREATE DATABASE $safename;' | mysql"
 
 # setup symfony
 vagrant ssh -c "cd /vagrant && composer.phar install"
