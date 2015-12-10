@@ -2,7 +2,7 @@ parameters:
     database_driver:   pdo_mysql
     database_host:     127.0.0.1
     database_port:     ~
-    database_name:     %%%%name%%%%
+    database_name:     %%%%safename%%%%
     database_user:     root
     database_password: root
     # You should uncomment this if you want use pdo_sqlite

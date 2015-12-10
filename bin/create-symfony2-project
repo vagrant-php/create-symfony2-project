@@ -89,7 +89,7 @@ hostname=$name.dev
 url=https://github.com/symfony/symfony-standard/archive/v$version.zip
 filename=v$version.zip
 foldername=symfony-standard-$version
-safeName=${name/[^[:alnum:]]/_}
+safename=${name/[^[:alnum:]]/_}
 
 # check if the repository exists
 git ls-remote --exit-code $vagrantPhpRepository $vagrantPhpBranch > /dev/null
@@ -179,9 +179,9 @@ fi
 
 # replace variables within configs
 sed -i "" -e "s/%%%%locale%%%%/$locale/g" $tempDir/app/config/parameters.yml
-sed -i "" -e "s/%%%%safeName%%%%/$name/g" $tempDir/app/config/parameters.yml
+sed -i "" -e "s/%%%%safename%%%%/$safename/g" $tempDir/app/config/parameters.yml
 sed -i "" -e "s/%%%%locale%%%%/$locale/g" $tempDir/app/config/parameters.yml.dist
-sed -i "" -e "s/%%%%safeName%%%%/$name/g" $tempDir/app/config/parameters.yml.dist
+sed -i "" -e "s/%%%%safename%%%%/$safename/g" $tempDir/app/config/parameters.yml.dist
 
 # copy the prepared config to the project
 cp -rf $tempDir/* .
