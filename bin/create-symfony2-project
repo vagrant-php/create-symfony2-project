@@ -73,7 +73,7 @@ if [ -z "$name" ]; then
 fi
 
 # check for name signs
-if [[ $name = *[^[:alnum:]]* ]]; then
+if [[ $name = *[^[:alnum:],\-]* ]]; then
     echo "please enter a project name which is alphanumeric"
     exit 1
 fi
@@ -91,6 +91,7 @@ hostnameLength=${#hostname}
 url=https://github.com/symfony/symfony-standard/archive/v$version.zip
 filename=v$version.zip
 foldername=symfony-standard-$version
+safeName=${name/[^[:alnum:]]/_}
 
 # check if the repository exists
 git ls-remote --exit-code $vagrantPhpRepository $vagrantPhpBranch > /dev/null
@@ -180,9 +181,9 @@ fi
 
 # replace variables within configs
 sed -i "" -e "s/%%%%locale%%%%/$locale/g" $tempDir/app/config/parameters.yml
-sed -i "" -e "s/%%%%name%%%%/$name/g" $tempDir/app/config/parameters.yml
+sed -i "" -e "s/%%%%safeName%%%%/$name/g" $tempDir/app/config/parameters.yml
 sed -i "" -e "s/%%%%locale%%%%/$locale/g" $tempDir/app/config/parameters.yml.dist
-sed -i "" -e "s/%%%%name%%%%/$name/g" $tempDir/app/config/parameters.yml.dist
+sed -i "" -e "s/%%%%safeName%%%%/$name/g" $tempDir/app/config/parameters.yml.dist
 
 # copy the prepared config to the project
 cp -rf $tempDir/* .
