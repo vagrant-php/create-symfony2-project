@@ -73,7 +73,7 @@ if [ -z "$name" ]; then
 fi
 
 # check for name signs
-if [[ $name = *[^[:alnum:],\-]* ]]; then
+if [[ $name = *[^[:alnum:]\-]* ]]; then
     echo "please enter a project name which is alphanumeric"
     exit 1
 fi
