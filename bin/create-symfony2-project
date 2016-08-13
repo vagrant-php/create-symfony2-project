@@ -33,6 +33,10 @@ do
             locale="${i#*=}"
             shift
         ;;
+        --vagrantIp=*)
+            vagrantIp="${i#*=}"
+            shift
+        ;;
         --vagrantPhpBranch=*)
             vagrantPhpBranch="${i#*=}"
             shift
@@ -55,7 +59,7 @@ do
         ;;
         -h|--help)
             echo "usage: create-symfony2-project --name=myproject"
-            echo "usage: create-symfony2-project --name=myproject --vagrantPhpBranch=$vagrantPhpBranch --vagrantPhpRepository=$vagrantPhpRepository --vagrantProvider=$vagrantProvider --vagrantSharetype=$vagrantSharetype --version=$version"
+            echo "usage: create-symfony2-project --name=myproject --vagrantIp=$vagrantIp --vagrantPhpBranch=$vagrantPhpBranch --vagrantPhpRepository=$vagrantPhpRepository --vagrantProvider=$vagrantProvider --vagrantSharetype=$vagrantSharetype --version=$version"
             exit 0
         ;;
     esac
@@ -149,6 +153,12 @@ printf "hostname: $hostname\napplication: $application\n" > vagrant.yml
 # add sharetype if defined
 if [[ $vagrantSharetype ]]; then
     printf "sharetype: $vagrantSharetype\n" >> vagrant.yml
+fi
+
+# add vagrantIp if defined
+if [[ $vagrantIp ]]; then
+    printf "network:\n" >> vagrant.yml
+    printf "    ip: $vagrantIp\n" >> vagrant.yml
 fi
 
 # create a temp directory
