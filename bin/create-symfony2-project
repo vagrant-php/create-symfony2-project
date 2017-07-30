@@ -15,7 +15,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # defaults
 application=symfony2
 locale=de_CH
-vagrantPhpBranch=14.04
+vagrantPhpBranch=16.04
 vagrantPhpRepository=https://github.com/vagrant-php/ubuntu.git
 vagrantProvider=virtualbox
 vagrantSharetype=nfs
